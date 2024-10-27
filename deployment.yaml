@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pe-wa-deployment
+  name: bmi-deployment
 spec:
   replicas: 6  # Number of desired replicas
   selector:
     matchLabels:
-      app: pe-wa
+      app: bmi
   template:
     metadata:
       labels:
-        app: pe-wa
+        app: bmi
     spec:
       containers:
-      - name: pe-wa
-        image: yash5090/pe-wa:latest
+      - name: bmi
+        image: yash5090/bmi:latest
         ports:
-        - containerPort: 5000
+        - containerPort: 3000
