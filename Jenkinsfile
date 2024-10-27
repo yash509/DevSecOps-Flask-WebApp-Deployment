@@ -12,7 +12,7 @@ pipeline {
     }
     
     environment {
-        IMAGE_NAME = "yash5090/countrybank"
+        IMAGE_NAME = "yash5090/bmi"
         TAG = "${params.DOCKER_TAG}" 
         SCANNER_HOME = tool 'sonar-scanner'
     }
@@ -39,7 +39,7 @@ pipeline {
         
         stage('Checkout from Git') {                        
             steps {                                       
-                git branch: 'main', url: 'https://github.com/yash509/DevSecOps-CountryBank-WebApp-Deployment.git'
+                git branch: 'main', url: 'https://github.com/yash509/DevSecOps-Flask-WebApp-Deployment.git'
             }
         }
         
@@ -283,15 +283,15 @@ pipeline {
 
         stage ("Remove Docker Container") {
             steps{
-                sh "docker stop countrybank | true"
-                sh "docker rm countrybank | true"
+                sh "docker stop bmi | true"
+                sh "docker rm bmi | true"
              }
         }
         
         stage('Deploy to Docker Container'){
             steps{
                 //dir('BMI Calculator (JS)') {
-                    sh "docker run -d --name countrybank -p 3000:3000 ${IMAGE_NAME}:${TAG}" 
+                    sh "docker run -d --name bmi -p 3000:3000 ${IMAGE_NAME}:${TAG}" 
                 //}
             }
         }
@@ -345,7 +345,7 @@ pipeline {
                     // Always switch traffic based on DEPLOY_ENV
                     withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
                         sh '''
-                            kubectl patch service countrybank-service -p "{\\"spec\\": {\\"selector\\": {\\"app\\": \\"countrybank\\", \\"version\\": \\"''' + newEnv + '''\\"}}}"
+                            kubectl patch service bmi-service -p "{\\"spec\\": {\\"selector\\": {\\"app\\": \\"bmi\\", \\"version\\": \\"''' + newEnv + '''\\"}}}"
                         '''
                     }
                     echo "Traffic has been switched to the ${newEnv} environment."
