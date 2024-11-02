@@ -219,17 +219,18 @@ pipeline {
                    }
                 }   
             }
-        }
-
-        stage('Snyk Docker Image Vulnerability Scannning') {
-        steps {
+        }  
+        
+		stage('Snyk Docker Image/Container Vulnerability Scannning') {
+		steps {
                 withCredentials([string(credentialsId: 'snyk', variable: 'snyk')]) {
                    sh 'snyk auth $snyk'
-                   sh "snyk container test ${IMAGE_NAME}:${TAG} > snykvulnerabilityreport.txt --report || true"
+                   sh 'snyk container test ${IMAGE_NAME}:${TAG} > snyk-containertest-vulnerabilityreport.txt --report || true '
+                   sh 'snyk container monitor ${IMAGE_NAME}:${TAG} > snyk-containermonitor-vulnerabilityreport.txt || true'
                 }
             }
-        }    
-        
+        } 
+		
         stage("TRIVY"){
             steps{
                 //dir('Band Website') {
@@ -301,6 +302,13 @@ pipeline {
                 sh "docker images -a"
                 sh "docker ps -a"
              }
+        }
+        
+        stage ('Snyk Kubernetes-Config Files Vulnerablity Scan') {
+            steps {
+                sh 'snyk iac test app-deployment-blue.yaml --report > BlueEnv-filevulnerabilityreport.txt || true'
+                sh 'snyk iac test app-deployment-green.yaml --report > GreenEnv-filevulnerabilityreport.txt || true'
+            }
         }
 
         stage("Sanity Check for Shifting to Production") {
@@ -400,7 +408,7 @@ pipeline {
                 from: 'jenkins@example.com', 
                 replyTo: 'jenkins@example.com', 
                 mimeType: 'text/html', 
-                attachmentsPattern: 'trivy-image-report.html, trivyfs.txt, trivyimage.txt, snykvulnerabilityreport.txt, snykloadedvulnerabilityreport.txt') 
+                attachmentsPattern: 'trivy-image-report.html, trivyfs.txt, trivyimage.txt, snykloadedvulnerabilityreport.txt,GreenEnv-filevulnerabilityreport.txt,BlueEnv-filevulnerabilityreport.txt, snyk-containertest-vulnerabilityreport.txt, snyk-containermonitor-vulnerabilityreport.txt') 
             } 
         } 
     }
